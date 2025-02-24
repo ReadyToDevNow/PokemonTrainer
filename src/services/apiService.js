@@ -22,7 +22,7 @@ export async function getAllPokemons() {
   }
 }
 
-export async function getFirstGeneration() {
+/*export async function getFirstGeneration() {
   try {
     const response = await apiClient.get('/gen/1')
     const pokemons = response.data
@@ -30,6 +30,15 @@ export async function getFirstGeneration() {
     const images = pokemons.map((pokemon) => pokemon.sprites.regular)
     console.log('Noms des pokémons :', names)
     return { names, images }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des noms des Pokemons:', error)
+    return []
+  }
+}*/
+export async function getFirstGeneration() {
+  try {
+    const response = await apiClient.get('/gen/1')
+    return response.data
   } catch (error) {
     console.error('Erreur lors de la récupération des noms des Pokemons:', error)
     return []

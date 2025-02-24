@@ -6,7 +6,10 @@
   <div>
     <header>
       <div class="wrapper">
-        <nav></nav>
+        <nav>
+          <router-link to="/home">Accueil</router-link> |
+          <router-link to="/game">Jeu</router-link> |
+        </nav>
       </div>
     </header>
 

@@ -3,13 +3,15 @@
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <nav></nav>
-    </div>
-  </header>
+  <div>
+    <header>
+      <div class="wrapper">
+        <nav></nav>
+      </div>
+    </header>
 
-  <RouterView />
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>

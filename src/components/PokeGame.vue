@@ -2,6 +2,7 @@
 import { getAllPokemons } from '@/services/apiService'
 
 export default {
+  name: 'PokemonList',
   data() {
     return {
       allpokemons: [],
@@ -15,7 +16,7 @@ export default {
 
 <template>
   <div>PokeGame</div>
-  <span>{{ getAllPokemons }}</span>
+  <div>{{ allpokemons }}</div>
 </template>
 
 <style></style>

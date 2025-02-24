@@ -39,10 +39,10 @@ export default {
 
 <template>
   <h2 class="text-4xl font-bold flex flex-col justify-center items-center">Liste des Pokémons</h2>
-  <ul class="">
+  <ul class="flex flex-col justify-center items-center">
     <li v-for="pokemon in pokemons" :key="pokemon.pokedex_id">
       <img :src="pokemon.sprites.regular" :alt="`Sprite de ${pokemon.name.fr}`" />
-      {{ pokemon.name.fr }}
+      <span class="text-xl font-bold flex flex-col items-center">{{ pokemon.name.fr }}</span>
     </li>
   </ul>
 </template>

@@ -25,6 +25,7 @@ export default {
       try {
         const data = await getFirstGeneration()
         pokemons.value = data
+        console.log('Pokemon first generation', data)
       } catch (error) {
         console.error('Erreur lors de la récupération des Pokémons:', error)
       }
@@ -42,7 +43,9 @@ export default {
   <ul class="flex flex-col justify-center items-center">
     <li v-for="pokemon in pokemons" :key="pokemon.pokedex_id">
       <img :src="pokemon.sprites.regular" :alt="`Sprite de ${pokemon.name.fr}`" />
-      <span class="text-xl font-bold flex flex-col items-center">{{ pokemon.name.fr }}</span>
+      <span class="text-xl font-bold flex flex-col items-center"
+        >{{ pokemon.name.fr }} pokemon de type : {{ pokemon.types[0].name }}
+      </span>
     </li>
   </ul>
 </template>

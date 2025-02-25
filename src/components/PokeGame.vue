@@ -43,8 +43,15 @@ export default {
   <ul class="flex flex-col justify-center items-center">
     <li v-for="pokemon in pokemons" :key="pokemon.pokedex_id">
       <img :src="pokemon.sprites.regular" :alt="`Sprite de ${pokemon.name.fr}`" />
-      <span class="text-xl font-bold flex flex-col items-center"
-        >{{ pokemon.name.fr }} pokemon de type : {{ pokemon.types[0].name }}
+      <span class="text-xl font-bold flex flex-col items-center">
+        {{ pokemon.name.fr }} pokemon de type :
+        <span v-if="pokemon.types && pokemon.types.length > 0">
+          {{ pokemon.types[0].name }} et
+          <span v-if="pokemon.types && pokemon.types.length > 1">
+            {{ pokemon.types[1].name }}
+          </span>
+          <span v-else>Pas de type</span>
+        </span>
       </span>
     </li>
   </ul>

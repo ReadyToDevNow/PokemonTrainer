@@ -8,7 +8,7 @@
       <div class="bg-amber-600/10">
         <nav>
           <router-link to="/home">Accueil</router-link> |
-          <router-link to="/game">Jeu</router-link> |
+          <router-link to="/pokédex">Pokédex</router-link> |
         </nav>
       </div>
     </header>

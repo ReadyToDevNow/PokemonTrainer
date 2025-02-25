@@ -11,8 +11,8 @@ const router = createRouter({
       component: HomePage,
     },
     {
-      path: '/game',
-      name: 'game',
+      path: '/pokédex',
+      name: 'pokédex',
       component: PokeGame,
     },
     /* {

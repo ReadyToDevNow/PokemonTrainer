@@ -40,7 +40,6 @@ const filteredPokemons = computed(() => {
 <template>
   <div class="">
     <h2 class="text-4xl font-bold flex flex-col justify-center items-center mb-4">Pokédex</h2>
-
     <ul class="flex flex-col justify-center items-center">
       <input
         v-model="searchQuery"
@@ -56,12 +55,21 @@ const filteredPokemons = computed(() => {
         <img :src="pokemon.sprites.regular" :alt="`Sprite de ${pokemon.name.fr}`" />
         <span class="text-xl font-bold flex flex-col items-center">
           {{ pokemon.name.fr }} pokemon de type :
+          <!--  <span
+            v-if="
+              (pokemon.types && pokemon.types.length > 0) ||
+              (pokemon.types && pokemon.types.length > 1)
+            "
+            >{{ pokemon.types[0].name }} <img :src="pokemon.types[0].image" alt="" /> et
+            {{ pokemon.types[1].name }} <img :src="pokemon.types[1].image" alt=""
+          /></span> -->
           <span v-if="pokemon.types && pokemon.types.length > 0">
-            {{ pokemon.types[0].name }}
+            {{ pokemon.types[0].name }} <img :src="pokemon.types[0].image" alt="" />
             <span v-if="pokemon.types && pokemon.types.length > 1">
-              et {{ pokemon.types[1].name }}
+              et {{ pokemon.types[1].name }} <img :src="pokemon.types[1].image" alt="" />
             </span>
-            <!-- Gère l'affichage lorsque le pokemon n'a pas de second type-->
+
+            <!--  Gère l'affichage lorsque le pokemon n'a pas de second type-->
             <span v-else></span>
           </span>
         </span>

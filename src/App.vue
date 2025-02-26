@@ -7,8 +7,9 @@
     <header>
       <div class="bg-amber-600/10">
         <nav>
-          <router-link to="/home">Accueil</router-link> |
-          <router-link to="/pokédex">Pokédex</router-link> |
+          <router-link to="/">Accueil</router-link> |
+          <router-link to="/game">Pokédex</router-link> |
+          <router-link to="card">Cartes</router-link>
         </nav>
       </div>
     </header>

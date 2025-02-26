@@ -1,19 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from '../components/HomePage.vue'
+import HomePage from '@/components/HomePage.vue'
 import PokeGame from '@/components/PokeGame.vue'
+import PokeCard from '@/components/PokeCard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/home',
+      path: '/',
       name: 'home',
       component: HomePage,
     },
     {
-      path: '/pokédex',
-      name: 'pokédex',
+      path: '/game',
+      name: 'game',
       component: PokeGame,
+    },
+    {
+      path: '/card',
+      name: 'card',
+      component: PokeCard,
     },
     /* {
       path: '/about',

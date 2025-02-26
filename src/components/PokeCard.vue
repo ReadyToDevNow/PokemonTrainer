@@ -25,7 +25,7 @@
       <div
         v-for="(pokemon, index) in pokemons"
         :key="index"
-        class="flex flex-col pokemon-cell rounded"
+        class="flex flex-col pokemon-cell rounded mb-4"
       >
         <img
           :src="pokemon.sprites.regular"
@@ -33,7 +33,7 @@
           v-if="pokemon.show"
           class="pokemon-image"
         />
-        <span v-else class="text-xl font-bold">?</span>
+        <span v-else class="text-xl font-bold"><img src="@/assets/pokeball.png" alt="" /></span>
       </div>
     </div>
   </div>
@@ -83,7 +83,6 @@ const resetGrid = () => {
   height: 112px;
   justify-content: center;
   align-items: center;
-  border: 1px solid rgb(230, 17, 201);
 }
 .pokemon-image {
   width: 100%;

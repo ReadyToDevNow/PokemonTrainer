@@ -35,12 +35,10 @@ const checkPokemon = async () => {
 
 const resetGrid = () => {
   pokemons.value.forEach((pokemon) => {
-    pokemon.show = false
+    pokemon.show = false // reset l'affichage des pokémons
   })
-  userInput.value = ''
-  if (pokemonCounter.value) {
-    pokemonCounter.value.updateCount(0)
-  }
+  userInput.value = '' // reset input area
+  pokemonCounter.value.updateCount(0) // reset counter
 }
 </script>
 <template>

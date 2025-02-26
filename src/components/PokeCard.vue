@@ -3,16 +3,24 @@
     <h2 class="text-4xl font-bold flex flex-col justify-center items-center mt-12 mb-12">
       Jouez maintenant
     </h2>
-    <input
-      v-model="userInput"
-      type="text"
-      placeholder="Entrez le nom d'un Pokémon"
-      @keyup.enter="checkPokemon"
-      class="mb-8 p-4 border rounded w-60"
-    />
+    <div class="flex flex-col justify-center items-center">
+      <div>
+        <input
+          v-model="userInput"
+          type="text"
+          placeholder="Entrez le nom d'un Pokémon"
+          @keyup.enter="checkPokemon"
+          class="mb-8 p-4 border rounded w-60"
+        />
 
-    <button @click="checkPokemon" class="mb-4 p-4 bg-blue-500 text-white rounded">Vérifier</button>
-    <button @click="resetGrid">Réinitialiser la grille</button>
+        <button @click="checkPokemon" class="mb-4 p-4 ml-2 bg-blue-500 text-white rounded">
+          Vérifier
+        </button>
+        <button @click="resetGrid" class="mb-4 p-4 bg-red-500 text-white shadow-amber rounded ml-2">
+          Réinitialiser la grille
+        </button>
+      </div>
+    </div>
     <div class="grid-container">
       <div
         v-for="(pokemon, index) in pokemons"

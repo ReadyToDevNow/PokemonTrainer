@@ -12,7 +12,7 @@
     />
 
     <button @click="checkPokemon" class="mb-4 p-4 bg-blue-500 text-white rounded">Vérifier</button>
-
+    <button @click="resetGrid">Réinitialiser la grille</button>
     <div class="grid-container">
       <div
         v-for="(pokemon, index) in pokemons"
@@ -60,6 +60,13 @@ const checkPokemon = async () => {
   } else {
     alert("Ce Pokémon n'existe pas ou n'est pas dans la première génération.")
   }
+}
+
+const resetGrid = () => {
+  pokemons.value.forEach((pokemon) => {
+    pokemon.show = false
+  })
+  userInput.value = ''
 }
 </script>
 <style scoped>

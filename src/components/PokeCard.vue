@@ -1,3 +1,48 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { getFirstGeneration } from '@/services/apiService'
+import PokeCounter from './PokeCounter.vue'
+
+const userInput = ref('')
+const pokemons = ref([])
+const pokemonCounter = ref(null)
+
+onMounted(async () => {
+  try {
+    const data = await getFirstGeneration()
+    pokemons.value = data.map((pokemon) => ({
+      ...pokemon,
+      show: false,
+    }))
+  } catch (error) {
+    console.error('Erreur lors de la récupération des Pokémons:', error)
+  }
+})
+
+const checkPokemon = async () => {
+  const input = userInput.value.trim().toLowerCase()
+  const foundPokemon = pokemons.value.find((pokemon) => pokemon.name.fr.toLowerCase() === input)
+  if (foundPokemon) {
+    foundPokemon.show = true
+    userInput.value = '' // Réinitialiser l'input
+    if (pokemonCounter.value) {
+      pokemonCounter.value.updateCount(pokemons.value.filter((p) => p.show).length)
+    }
+  } else {
+    alert("Ce Pokémon n'existe pas ou n'est pas dans la première génération.")
+  }
+}
+
+const resetGrid = () => {
+  pokemons.value.forEach((pokemon) => {
+    pokemon.show = false
+  })
+  userInput.value = ''
+  if (pokemonCounter.value) {
+    pokemonCounter.value.updateCount(0)
+  }
+}
+</script>
 <template>
   <div>
     <h2 class="text-4xl font-bold flex flex-col justify-center items-center mt-12 mb-12">
@@ -19,6 +64,7 @@
         <button @click="resetGrid" class="mb-4 p-4 bg-red-500 text-white shadow-amber rounded ml-2">
           Réinitialiser la grille
         </button>
+        <PokeCounter ref="pokemonCounter" />
       </div>
     </div>
     <div class="grid-container">
@@ -39,44 +85,6 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { getFirstGeneration } from '@/services/apiService'
-
-const userInput = ref('')
-const pokemons = ref([])
-
-onMounted(async () => {
-  try {
-    const data = await getFirstGeneration()
-    pokemons.value = data.map((pokemon) => ({
-      ...pokemon,
-      show: false,
-    }))
-  } catch (error) {
-    console.error('Erreur lors de la récupération des Pokémons:', error)
-  }
-})
-
-const checkPokemon = async () => {
-  const input = userInput.value.trim().toLowerCase()
-  const foundPokemon = pokemons.value.find((pokemon) => pokemon.name.fr.toLowerCase() === input)
-
-  if (foundPokemon) {
-    foundPokemon.show = true
-    userInput.value = '' // Réinitialiser l'input
-  } else {
-    alert("Ce Pokémon n'existe pas ou n'est pas dans la première génération.")
-  }
-}
-
-const resetGrid = () => {
-  pokemons.value.forEach((pokemon) => {
-    pokemon.show = false
-  })
-  userInput.value = ''
-}
-</script>
 <style scoped>
 .pokemon-cell {
   width: 112px;

@@ -2,9 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { getFirstGeneration } from '@/services/apiService'
 import PokeCounter from './PokeCounter.vue'
+import PokeTimer from './PokeTimer.vue'
 
 const userInput = ref('')
 const pokemons = ref([])
+const timer = ref(null)
 const pokemonCounter = ref(null)
 
 onMounted(async () => {
@@ -28,6 +30,10 @@ const checkPokemon = async () => {
     if (pokemonCounter.value) {
       pokemonCounter.value.updateCount(pokemons.value.filter((p) => p.show).length)
     }
+    //Start timer when the first pokemon is found
+    if (pokemons.value.filter((p) => p.show).length === 1 && timer.value) {
+      timer.value.startTimer()
+    }
   } else {
     alert("Ce Pokémon n'existe pas ou n'est pas dans la première génération.")
   }
@@ -39,6 +45,9 @@ const resetGrid = () => {
   })
   userInput.value = '' // reset input area
   pokemonCounter.value.updateCount(0) // reset counter
+  if (timer.value) {
+    timer.value.resetTimer()
+  }
 }
 </script>
 <template>
@@ -62,6 +71,7 @@ const resetGrid = () => {
         <button @click="resetGrid" class="mb-4 p-4 bg-red-500 text-white shadow-amber rounded ml-2">
           Réinitialiser la grille
         </button>
+        <PokeTimer ref="timer" />
         <PokeCounter ref="pokemonCounter" />
       </div>
     </div>

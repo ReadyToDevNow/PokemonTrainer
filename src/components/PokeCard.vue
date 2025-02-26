@@ -1,20 +1,29 @@
 <template>
   <div>
-    <h2 class="text-4xl font-bold flex flex-col justify-center items-center">Jeu Pokémon</h2>
+    <h2 class="text-4xl font-bold flex flex-col justify-center items-center mt-12 mb-12">
+      Jouez maintenant
+    </h2>
     <input
       v-model="userInput"
       type="text"
       placeholder="Entrez le nom d'un Pokémon"
       @keyup.enter="checkPokemon"
-      class="mb-4 p-2 border border-gray-300 rounded"
+      class="mb-8 p-4 border rounded w-60"
     />
-    <button @click="checkPokemon" class="mb-4 p-2 bg-blue-500 text-white rounded">Vérifier</button>
-    <div class="grid grid-cols-12 gap-4">
-      <div v-for="(pokemon, index) in pokemons" :key="index" class="flex flex-col items-center">
+
+    <button @click="checkPokemon" class="mb-4 p-4 bg-blue-500 text-white rounded">Vérifier</button>
+
+    <div class="grid-container">
+      <div
+        v-for="(pokemon, index) in pokemons"
+        :key="index"
+        class="flex flex-col pokemon-cell rounded"
+      >
         <img
           :src="pokemon.sprites.regular"
           :alt="`Sprite de ${pokemon.name.fr}`"
           v-if="pokemon.show"
+          class="pokemon-image"
         />
         <span v-else class="text-xl font-bold">?</span>
       </div>
@@ -53,3 +62,68 @@ const checkPokemon = async () => {
   }
 }
 </script>
+<style scoped>
+.pokemon-cell {
+  width: 112px;
+  height: 112px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgb(230, 17, 201);
+}
+.pokemon-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(10, 2fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.grid-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1 / 1; /* Pour garder les cellules carrées */
+}
+@media (max-width: 1280px) {
+  .grid-container {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (max-width: 1080px) {
+  .grid-container {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Media query pour les petits écrans (mobiles) */
+@media (max-width: 480px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Media query pour les très petits écrans */
+@media (max-width: 320px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

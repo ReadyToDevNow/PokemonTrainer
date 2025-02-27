@@ -72,12 +72,15 @@ const formattedTime = computed(() => {
         <button @click="checkPokemon" class="mb-4 p-4 ml-2 bg-blue-500 text-white rounded">
           Vérifier
         </button>
+
         <button @click="resetGrid" class="mb-4 p-4 bg-red-500 text-white shadow-amber rounded ml-2">
           Réinitialiser la grille
         </button>
-        <div class="timer mb-4 p-4 bg-green-800 text-white shadow-amber rounded ml-2">
+
+        <button class="timer mb-4 p-4 bg-green-800 text-white shadow-amber rounded ml-2">
           Temps écoulé : {{ formattedTime }}
-        </div>
+        </button>
+
         <PokeCounter ref="pokemonCounter" />
       </div>
     </div>
@@ -125,6 +128,8 @@ const formattedTime = computed(() => {
   align-items: center;
   aspect-ratio: 1 / 1; /* Pour garder les cellules carrées */
 }
+
+/*Responsive grid */
 @media (max-width: 1280px) {
   .grid-container {
     grid-template-columns: repeat(8, 1fr);

@@ -1,12 +1,12 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getFirstGeneration } from '@/services/apiService'
 import PokeCounter from './PokeCounter.vue'
-import PokeTimer from './PokeTimer.vue'
+import { useTimer } from './PokeTimer.js'
 
 const userInput = ref('')
 const pokemons = ref([])
-const timer = ref(null)
+const { time, startTimer, resetTimer } = useTimer()
 const pokemonCounter = ref(null)
 
 onMounted(async () => {
@@ -31,8 +31,8 @@ const checkPokemon = async () => {
       pokemonCounter.value.updateCount(pokemons.value.filter((p) => p.show).length)
     }
     //Start timer when the first pokemon is found
-    if (pokemons.value.filter((p) => p.show).length === 1 && timer.value) {
-      timer.value.startTimer()
+    if (pokemons.value.filter((p) => p.show).length === 1) {
+      startTimer()
     }
   } else {
     alert("Ce Pokémon n'existe pas ou n'est pas dans la première génération.")
@@ -45,10 +45,14 @@ const resetGrid = () => {
   })
   userInput.value = '' // reset input area
   pokemonCounter.value.updateCount(0) // reset counter
-  if (timer.value) {
-    timer.value.resetTimer()
-  }
+  resetTimer()
 }
+
+const formattedTime = computed(() => {
+  const minutes = Math.floor(time.value / 60)
+  const seconds = time.value % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+})
 </script>
 <template>
   <div>
@@ -71,7 +75,9 @@ const resetGrid = () => {
         <button @click="resetGrid" class="mb-4 p-4 bg-red-500 text-white shadow-amber rounded ml-2">
           Réinitialiser la grille
         </button>
-        <PokeTimer ref="timer" />
+        <div class="timer mb-4 p-4 bg-green-800 text-white shadow-amber rounded ml-2">
+          Temps écoulé : {{ formattedTime }}
+        </div>
         <PokeCounter ref="pokemonCounter" />
       </div>
     </div>

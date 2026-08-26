@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/components/HomePage.vue'
 import PokeGame from '@/components/PokeGame.vue'
 import PokeCard from '@/components/PokeCard.vue'
+import NewPokedex from '@/components/NewPokedex.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/card',
       name: 'card',
       component: PokeCard,
+    },
+    {
+      path: '/new-pokedex',
+      name: 'new-pokedex',
+      component: NewPokedex,
     },
     /* {
       path: '/about',

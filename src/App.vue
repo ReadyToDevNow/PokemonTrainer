@@ -9,7 +9,8 @@
         <nav>
           <router-link to="/">Accueil</router-link> |
           <router-link to="/game">Pokédex</router-link> |
-          <router-link to="card">Cartes</router-link>
+          <router-link to="card">Cartes</router-link> |
+          <router-link to="/new-pokedex">NewPokedex</router-link>
         </nav>
       </div>
     </header>

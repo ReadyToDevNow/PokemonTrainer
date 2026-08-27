@@ -99,9 +99,26 @@ onMounted(async () => {
   }
 })
 
-const starters = computed(() =>
-  pokemons.value.filter((pokemon) => STARTER_IDS.includes(pokemon.pokedex_id)),
-)
+function statTotal(pokemon) {
+  return Object.values(pokemon.stats).reduce((sum, value) => sum + value, 0)
+}
+
+// Le Pokémon avec le total de stats le plus élevé, calculé sur les données de l'API
+const strongestPokemon = computed(() => {
+  if (!pokemons.value.length) return null
+  return pokemons.value.reduce((strongest, pokemon) =>
+    statTotal(pokemon) > statTotal(strongest) ? pokemon : strongest,
+  )
+})
+
+const starters = computed(() => {
+  const curated = pokemons.value.filter((pokemon) => STARTER_IDS.includes(pokemon.pokedex_id))
+  if (!strongestPokemon.value) return curated
+  const rest = curated.filter(
+    (pokemon) => pokemon.pokedex_id !== strongestPokemon.value.pokedex_id,
+  )
+  return [strongestPokemon.value, ...rest]
+})
 
 function typeColor(typeName) {
   return TYPE_COLORS[typeName] || '#68A090'
@@ -258,8 +275,15 @@ const enemyHpPercent = computed(() =>
           v-for="pokemon in starters"
           :key="pokemon.pokedex_id"
           class="starter-card"
+          :class="{ 'starter-card--strongest': pokemon.pokedex_id === strongestPokemon?.pokedex_id }"
           @click="startGame(pokemon)"
         >
+          <span
+            v-if="pokemon.pokedex_id === strongestPokemon?.pokedex_id"
+            class="strongest-badge"
+          >
+            ★ Le plus fort
+          </span>
           <img :src="pokemon.sprites.regular" :alt="pokemon.name.fr" class="starter-sprite" />
           <span class="font-bold">{{ pokemon.name.fr }}</span>
           <span class="flex gap-1 mt-1">
@@ -376,6 +400,19 @@ const enemyHpPercent = computed(() =>
 .starter-card:hover {
   transform: translateY(-4px);
   border-color: #64748b;
+}
+.starter-card--strongest {
+  border-color: #ffe14d;
+  box-shadow: 0 0 12px rgba(255, 225, 77, 0.4);
+}
+.strongest-badge {
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: #0f172a;
+  background: #ffe14d;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-bottom: 4px;
 }
 .starter-sprite {
   width: 72px;

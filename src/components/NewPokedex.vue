@@ -309,7 +309,10 @@ function padId(id) {
   border: 6px solid #2f2f2f;
   border-radius: 8px;
   padding: 10px;
-  min-height: 480px;
+  height: 480px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .screen-header {

@@ -87,6 +87,31 @@ const score = ref(0)
 const log = ref([])
 const turnLock = ref(false)
 
+// Animations de combat
+const attackAnim = reactive({ player: false, enemy: false })
+const hitAnim = reactive({ player: false, enemy: false })
+const damagePopup = reactive({ player: null, enemy: null })
+let popupSeq = 0
+
+function playAttackAnim(side) {
+  attackAnim[side] = true
+  setTimeout(() => {
+    attackAnim[side] = false
+  }, 350)
+}
+
+function playHitAnim(side, dmg) {
+  hitAnim[side] = true
+  const id = ++popupSeq
+  damagePopup[side] = { amount: dmg, id }
+  setTimeout(() => {
+    hitAnim[side] = false
+  }, 400)
+  setTimeout(() => {
+    if (damagePopup[side]?.id === id) damagePopup[side] = null
+  }, 800)
+}
+
 onMounted(async () => {
   try {
     const data = await getAllPokemonsFull()
@@ -129,13 +154,18 @@ function pushLog(message) {
 }
 
 function movesFor(pokemon) {
-  const moves = pokemon.types.map((type) => ({
-    name: `Attaque ${type.name}`,
-    type: type.name,
-    power: Math.round(pokemon.stats.atk * 0.55),
+  const [type1, type2] = pokemon.types.map((type) => type.name)
+  const blueprints = [
+    { name: `Attaque ${type1}`, type: type1, statKey: 'atk', ratio: 0.55 },
+    { name: `Onde ${type1}`, type: type1, statKey: 'spe_atk', ratio: 0.55 },
+    { name: `Frappe ${type2 || 'Normal'}`, type: type2 || 'Normal', statKey: 'atk', ratio: 0.5 },
+    { name: 'Charge', type: 'Normal', statKey: 'atk', ratio: 0.4 },
+  ]
+  return blueprints.map((move) => ({
+    name: move.name,
+    type: move.type,
+    power: Math.round(pokemon.stats[move.statKey] * move.ratio),
   }))
-  moves.push({ name: 'Charge', type: 'Normal', power: Math.round(pokemon.stats.atk * 0.4) })
-  return moves
 }
 
 function effectiveness(moveType, defenderTypes) {
@@ -150,9 +180,8 @@ function effectiveness(moveType, defenderTypes) {
   return multiplier
 }
 
-function computeDamage(attacker, move, defender) {
-  const base = move.type === 'Normal' ? attacker.stats.atk * 0.4 : attacker.stats.atk * 0.55
-  const mitigated = base - defender.stats.def * 0.25
+function computeDamage(move, defender) {
+  const mitigated = move.power - defender.stats.def * 0.25
   const multiplier = effectiveness(
     move.type,
     defender.types.map((type) => type.name),
@@ -195,34 +224,42 @@ function playerAttack(move) {
   if (turnLock.value || phase.value !== 'battle') return
   turnLock.value = true
 
-  const { dmg, multiplier } = computeDamage(player.base, move, enemy.base)
-  enemy.hp = Math.max(0, enemy.hp - dmg)
-  pushLog(`${player.base.name.fr} utilise ${move.name} ! (${dmg} dégâts)`)
-  const effectMsg = effectivenessMessage(multiplier)
-  if (effectMsg) pushLog(effectMsg)
+  playAttackAnim('player')
+  setTimeout(() => {
+    const { dmg, multiplier } = computeDamage(move, enemy.base)
+    enemy.hp = Math.max(0, enemy.hp - dmg)
+    playHitAnim('enemy', dmg)
+    pushLog(`${player.base.name.fr} utilise ${move.name} ! (${dmg} dégâts)`)
+    const effectMsg = effectivenessMessage(multiplier)
+    if (effectMsg) pushLog(effectMsg)
 
-  if (enemy.hp <= 0) {
-    setTimeout(victory, 500)
-    return
-  }
+    if (enemy.hp <= 0) {
+      setTimeout(victory, 500)
+      return
+    }
 
-  setTimeout(() => enemyTurn(), 700)
+    setTimeout(() => enemyTurn(), 700)
+  }, 350)
 }
 
 function enemyTurn() {
-  const moves = movesFor(enemy.base)
-  const move = moves[Math.floor(Math.random() * moves.length)]
-  const { dmg, multiplier } = computeDamage(enemy.base, move, player.base)
-  player.hp = Math.max(0, player.hp - dmg)
-  pushLog(`${enemy.base.name.fr} utilise ${move.name} ! (${dmg} dégâts)`)
-  const effectMsg = effectivenessMessage(multiplier)
-  if (effectMsg) pushLog(effectMsg)
+  playAttackAnim('enemy')
+  setTimeout(() => {
+    const moves = movesFor(enemy.base)
+    const move = moves[Math.floor(Math.random() * moves.length)]
+    const { dmg, multiplier } = computeDamage(move, player.base)
+    player.hp = Math.max(0, player.hp - dmg)
+    playHitAnim('player', dmg)
+    pushLog(`${enemy.base.name.fr} utilise ${move.name} ! (${dmg} dégâts)`)
+    const effectMsg = effectivenessMessage(multiplier)
+    if (effectMsg) pushLog(effectMsg)
 
-  if (player.hp <= 0) {
-    setTimeout(defeat, 500)
-    return
-  }
-  turnLock.value = false
+    if (player.hp <= 0) {
+      setTimeout(defeat, 500)
+      return
+    }
+    turnLock.value = false
+  }, 350)
 }
 
 function victory() {
@@ -305,7 +342,10 @@ const enemyHpPercent = computed(() =>
       <div class="score-row">Score : {{ score }}</div>
 
       <div class="fighters-row">
-        <div class="fighter-card">
+        <div
+          class="fighter-card"
+          :class="{ 'is-attacking': attackAnim.enemy, 'is-hit': hitAnim.enemy }"
+        >
           <span class="fighter-name">{{ enemy.base.name.fr }}</span>
           <span class="type-row">
             <span
@@ -321,10 +361,23 @@ const enemyHpPercent = computed(() =>
             <div class="hp-fill" :style="{ width: enemyHpPercent + '%' }"></div>
           </div>
           <span class="hp-value">{{ enemy.hp }} / {{ enemy.maxHp }} PV</span>
-          <img :src="enemy.base.sprites.regular" :alt="enemy.base.name.fr" class="fighter-sprite" />
+          <img
+            :src="enemy.base.sprites.regular"
+            :alt="enemy.base.name.fr"
+            class="fighter-sprite"
+            :class="{ 'is-flashing': hitAnim.enemy }"
+          />
+          <Transition name="popup">
+            <span v-if="damagePopup.enemy" :key="damagePopup.enemy.id" class="damage-popup">
+              -{{ damagePopup.enemy.amount }}
+            </span>
+          </Transition>
         </div>
 
-        <div class="fighter-card fighter-card--player">
+        <div
+          class="fighter-card fighter-card--player"
+          :class="{ 'is-attacking': attackAnim.player, 'is-hit': hitAnim.player }"
+        >
           <span class="fighter-name">{{ player.base.name.fr }}</span>
           <span class="type-row">
             <span
@@ -344,7 +397,13 @@ const enemyHpPercent = computed(() =>
             :src="player.base.sprites.regular"
             :alt="player.base.name.fr"
             class="fighter-sprite fighter-sprite--player"
+            :class="{ 'is-flashing': hitAnim.player }"
           />
+          <Transition name="popup">
+            <span v-if="damagePopup.player" :key="damagePopup.player.id" class="damage-popup">
+              -{{ damagePopup.player.amount }}
+            </span>
+          </Transition>
         </div>
       </div>
 
@@ -451,6 +510,7 @@ const enemyHpPercent = computed(() =>
 }
 
 .fighter-card {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -458,6 +518,86 @@ const enemyHpPercent = computed(() =>
   background: #1e293b;
   border-radius: 10px;
   padding: 10px;
+  overflow: hidden;
+}
+
+.fighter-card.is-attacking {
+  animation: card-attack 0.35s ease;
+}
+
+.fighter-card.is-hit {
+  animation: card-hit 0.4s ease;
+}
+
+@keyframes card-attack {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-10px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes card-hit {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.fighter-sprite.is-flashing {
+  animation: sprite-flash 0.4s ease;
+}
+
+@keyframes sprite-flash {
+  0%,
+  100% {
+    filter: none;
+  }
+  50% {
+    filter: brightness(2.4) saturate(0) drop-shadow(0 0 6px #ff4d4d);
+  }
+}
+
+.damage-popup {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #fca5a5;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.popup-enter-active {
+  transition: all 0.8s ease-out;
+}
+
+.popup-enter-from {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.popup-enter-to {
+  opacity: 0;
+  transform: translate(-50%, -30px);
 }
 
 .fighter-name {

@@ -11,7 +11,8 @@
           <router-link to="/game">Pokédex</router-link> |
           <router-link to="card">Cartes</router-link> |
           <router-link to="/new-pokedex">NewPokedex</router-link> |
-          <router-link to="/jeu-de-role">Jeu de rôle</router-link>
+          <router-link to="/jeu-de-role">Jeu de rôle</router-link> |
+          <router-link to="/poke-story">Poke Story</router-link>
         </nav>
       </div>
     </header>

@@ -5,6 +5,7 @@ import PokeCard from '@/components/PokeCard.vue'
 import NewPokedex from '@/components/NewPokedex.vue'
 import RolePlay from '@/components/RolePlay.vue'
 import PokeStory from '@/components/PokeStory.vue'
+import PokemonCenter from '@/components/PokemonCenter.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/poke-story',
       name: 'poke-story',
       component: PokeStory,
+    },
+    {
+      path: '/centre-pokemon',
+      name: 'centre-pokemon',
+      component: PokemonCenter,
     },
     /* {
       path: '/about',

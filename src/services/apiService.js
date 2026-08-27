@@ -44,3 +44,14 @@ export async function getFirstGeneration() {
     return []
   }
 }
+
+// Récupérer les données complètes de tous les Pokemons (toutes générations)
+export async function getAllPokemonsFull() {
+  try {
+    const response = await apiClient.get('/pokemon')
+    return response.data
+  } catch (error) {
+    console.error('Erreur lors de la récupération des Pokemons:', error)
+    return []
+  }
+}

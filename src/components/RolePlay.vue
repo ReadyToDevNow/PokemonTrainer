@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { getFirstGeneration } from '@/services/apiService'
+import { getAllPokemonsFull } from '@/services/apiService'
 
 const TYPE_COLORS = {
   Normal: '#A8A878',
@@ -63,7 +63,18 @@ const TYPE_CHART = {
   Fée: { strong: ['Combat', 'Dragon', 'Ténèbres'], weak: ['Feu', 'Poison', 'Acier'] },
 }
 
-const STARTER_IDS = [1, 4, 7, 25, 133]
+// Starters de chaque génération + quelques favoris
+const STARTER_IDS = [
+  1, 4, 7, // Gen 1
+  152, 155, 158, // Gen 2
+  252, 255, 258, // Gen 3
+  387, 390, 393, // Gen 4
+  495, 498, 501, // Gen 5
+  650, 653, 656, // Gen 6
+  722, 725, 728, // Gen 7
+  810, 813, 816, // Gen 8
+  25, 133, // Pikachu, Évoli
+]
 
 const pokemons = ref([])
 const loading = ref(true)
@@ -78,7 +89,9 @@ const turnLock = ref(false)
 
 onMounted(async () => {
   try {
-    pokemons.value = await getFirstGeneration()
+    const data = await getAllPokemonsFull()
+    // Écarte les entrées incomplètes (ex: MissingNo. n'a ni stats ni types)
+    pokemons.value = data.filter((pokemon) => pokemon.stats && pokemon.types?.length)
   } catch (err) {
     error.value = err
   } finally {
@@ -102,8 +115,9 @@ function movesFor(pokemon) {
   const moves = pokemon.types.map((type) => ({
     name: `Attaque ${type.name}`,
     type: type.name,
+    power: Math.round(pokemon.stats.atk * 0.55),
   }))
-  moves.push({ name: 'Charge', type: 'Normal' })
+  moves.push({ name: 'Charge', type: 'Normal', power: Math.round(pokemon.stats.atk * 0.4) })
   return moves
 }
 
@@ -236,10 +250,10 @@ const enemyHpPercent = computed(() =>
     <div v-else-if="error" class="text-xl font-bold">Impossible de charger les Pokémons.</div>
 
     <!-- ===== Écran de sélection ===== -->
-    <div v-else-if="phase === 'select'" class="w-full max-w-2xl">
+    <div v-else-if="phase === 'select'" class="w-full max-w-4xl">
       <h1 class="text-3xl font-bold text-center mb-2">Jeu de rôle Pokémon</h1>
       <p class="text-center text-slate-300 mb-6">Choisis ton partenaire pour partir à l'aventure</p>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
         <button
           v-for="pokemon in starters"
           :key="pokemon.pokedex_id"
@@ -269,17 +283,39 @@ const enemyHpPercent = computed(() =>
       <div class="fighters-row">
         <div class="fighter-card">
           <span class="fighter-name">{{ enemy.base.name.fr }}</span>
+          <span class="type-row">
+            <span
+              v-for="type in enemy.base.types"
+              :key="type.name"
+              class="type-pill"
+              :style="{ backgroundColor: typeColor(type.name) }"
+            >
+              {{ type.name }}
+            </span>
+          </span>
           <div class="hp-track">
             <div class="hp-fill" :style="{ width: enemyHpPercent + '%' }"></div>
           </div>
+          <span class="hp-value">{{ enemy.hp }} / {{ enemy.maxHp }} PV</span>
           <img :src="enemy.base.sprites.regular" :alt="enemy.base.name.fr" class="fighter-sprite" />
         </div>
 
         <div class="fighter-card fighter-card--player">
           <span class="fighter-name">{{ player.base.name.fr }}</span>
+          <span class="type-row">
+            <span
+              v-for="type in player.base.types"
+              :key="type.name"
+              class="type-pill"
+              :style="{ backgroundColor: typeColor(type.name) }"
+            >
+              {{ type.name }}
+            </span>
+          </span>
           <div class="hp-track">
             <div class="hp-fill" :style="{ width: playerHpPercent + '%' }"></div>
           </div>
+          <span class="hp-value">{{ player.hp }} / {{ player.maxHp }} PV</span>
           <img
             :src="player.base.sprites.regular"
             :alt="player.base.name.fr"
@@ -301,7 +337,13 @@ const enemyHpPercent = computed(() =>
           :disabled="turnLock"
           @click="playerAttack(move)"
         >
-          {{ move.name }}
+          <span class="move-name">{{ move.name }}</span>
+          <span class="move-meta">
+            <span class="type-pill" :style="{ backgroundColor: typeColor(move.type) }">
+              {{ move.type }}
+            </span>
+            <span class="move-power">Puissance {{ move.power }}</span>
+          </span>
         </button>
       </div>
 
@@ -386,19 +428,31 @@ const enemyHpPercent = computed(() =>
   margin-bottom: 4px;
 }
 
+.type-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
 .hp-track {
   width: 100%;
   height: 8px;
   background: #334155;
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .hp-fill {
   height: 100%;
   background: #4ade80;
   transition: width 0.4s;
+}
+
+.hp-value {
+  font-size: 0.7rem;
+  color: #cbd5e1;
+  margin-bottom: 6px;
 }
 
 .fighter-sprite {
@@ -432,6 +486,10 @@ const enemyHpPercent = computed(() =>
 }
 
 .move-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   background: #1e293b;
   border: 2px solid;
   border-radius: 8px;
@@ -439,6 +497,22 @@ const enemyHpPercent = computed(() =>
   color: white;
   font-weight: bold;
   cursor: pointer;
+}
+
+.move-name {
+  font-size: 0.9rem;
+}
+
+.move-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.move-power {
+  font-size: 0.7rem;
+  font-weight: normal;
+  color: #cbd5e1;
 }
 
 .move-btn:disabled {
